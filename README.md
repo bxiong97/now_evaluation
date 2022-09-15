@@ -69,6 +69,38 @@ make
 The installation of Scan2Mesh is followed by the codebase provided by [flame-fitting](https://github.com/Rubikplayer/flame-fitting).
 Please check that repository for more detailed instructions on Scan2Mesh installation.
 
+All of the above can be achieved with the following script ([source](https://github.com/soubhiksanyal/now_evaluation/issues/21)):
+
+```
+git clone https://github.com/soubhiksanyal/now_evaluation.git
+mkdir now_env
+python3 -m venv now_env
+source now_env/bin/activate
+pip install -U pip
+cd now_evaluation
+pip install -r requirements.txt
+sudo apt-get install libboost-dev
+git clone https://github.com/MPI-IS/mesh.git
+cd mesh
+BOOST_INCLUDE_DIRS=/usr/include/boost make all
+cd ..
+git clone https://github.com/Rubikplayer/flame-fitting.git
+cp flame-fitting/smpl_webuser now_evaluation/smpl_webuser -r
+cp flame-fitting/sbody now_evaluation/sbody -r
+git clone https://gitlab.com/libeigen/eigen.git
+cd eigen
+git checkout 3.4.0
+cd ..
+cp eigen now_evaluation/sbody/alignment/mesh_distance/eigen -r
+cd now_evaluation/sbody/alignment/mesh_distance
+make
+```
+
+with a few catches:
+1. I actually downloaded `boost` from its website and unzipped it into the project folder to get the path directly.
+1. `BOOST_INCLUDE_DIRS` is different for everyone.
+1. Python version in `my_env` needs to be 3.6, or just use conda to specify.
+
 ## Evaluation
 
 Download the NoW Dataset and the validation set scans from the [NoW website](https://now.is.tue.mpg.de/download.php), and predict 3D faces for all validation images.

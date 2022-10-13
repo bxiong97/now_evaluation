@@ -130,10 +130,10 @@ python check_predictions.py /home/yanfeng/github/now_evaluation/predicted_mesh_e
 
 where:
 
-* `.obj` is the predicted mesh path
-* `.npy` is the predicted mesh landmark path
-* `.obj` is the gt scan path
-* `.pp` is the gt landmark path
+* Predicted mesh path is `.obj`
+* Predicted mesh landmark path is `.npy` or `.txt`
+* GT scan path is `.obj`
+* GT landmark path is `.pp`
 
 #### Error computation
 

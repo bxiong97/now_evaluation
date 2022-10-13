@@ -135,12 +135,15 @@ def check_mesh_alignment(
         predicted_lmks,
     )
 
+    os.makedirs("cropped_scan", exist_ok = True)
+    os.makedirs("predicted_mesh_aligned", exist_ok = True)
+
     # Output cropped scan
-    masked_gt_scan.write_obj("./cropped_scan.obj")
+    masked_gt_scan.write_obj(os.path.join("cropped_scan", f"{pred_mesh_filename}.obj"))
 
     # Output cropped aligned mesh
     Mesh(predicted_mesh_vertices_aligned, predicted_mesh.f).write_obj(
-        "./predicted_mesh_aligned.obj"
+        os.path.join("predicted_mesh_aligned", f"{pred_mesh_filename}.obj")
     )
 
 

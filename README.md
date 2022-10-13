@@ -73,9 +73,9 @@ All of the above can be achieved with the following script ([source](https://git
 
 ```
 git clone https://github.com/soubhiksanyal/now_evaluation.git
-mkdir now_env
-python3 -m venv now_env
-source now_env/bin/activate
+mkdir my_venv
+python3 -m venv my_venv
+source my_venv/bin/activate
 pip install -U pip
 cd now_evaluation
 pip install -r requirements.txt
@@ -100,6 +100,8 @@ with a few catches:
 1. I actually downloaded `boost` from its website and unzipped it into the project folder to get the path directly.
 1. `BOOST_INCLUDE_DIRS` is different for everyone.
 1. Python version in `my_env` needs to be 3.6, or just use conda to specify.
+1. You may need to pip install a few missing dependencies before `check_predictions.py` works.
+1. Due to a few mis-operations, the virtual env `my_venv` is installed under `~/github/mesh/my_venv`. For future usage, run `source ~/github/mesh/my_venv/bin/activate` to activate it.
 
 ## Evaluation
 
@@ -120,6 +122,19 @@ python check_predictions.py <predicted_mesh_path> <predicted_mesh_landmark_path>
 ```
 Running this loads the `<predicted_mesh_path>` mesh, rigidly aligns it with the the scan `<gt_scan_path>`, and outputs the aligned mesh to `./predicted_mesh_aligned.obj`, and the cropped scan to `./cropped_scan.obj`. Please check if the output mesh and scan are rigidly aligned by jointly opening them in e.g. [MeshLab](https://www.meshlab.net/).
 
+Sample command:
+
+```
+python check_predictions.py /home/yanfeng/github/now_evaluation/predicted_mesh_export.obj /home/yanfeng/github/DECA-cache/train/pretrain_multiframe/NOW_eval/step_00149600/FaMoS_180424_03335_TA/multiview_neutral/IMG_0041.npy /home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version/scans/FaMoS_180424_03335_TA/natural_head_rotation.000001.obj /home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version/scans_lmks_onlypp/FaMoS_180424_03335_TA/natural_head_rotation.000001_picked_points.pp
+```
+
+where:
+
+* `.obj` is the predicted mesh path
+* `.npy` is the predicted mesh landmark path
+* `.obj` is the gt scan path
+* `.pp` is the gt landmark path
+
 #### Error computation
 
 To run the now evaluation on the validation set, run
@@ -127,7 +142,7 @@ To run the now evaluation on the validation set, run
 python compute_error.py
 ```
 
-The function in `metric_computation()` in `compute_error.py` is used to compute the error metric. You can run `python compute_error.py <dataset_folder> <predicted_mesh_folder> <validatton_or_test_set>`. For more options please see `compute_error.py`
+The function in `metric_computation()` in `compute_error.py` is used to compute the error metric. You can run `python compute_error.py <dataset_folder> <predicted_mesh_folder> <validation_or_test_set>`. For more options please see `compute_error.py`
 
 The predicted_mesh_folder should in a similar structure as mentioned in the [RingNet](https://now.is.tue.mpg.de/download.php) website.
 

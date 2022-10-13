@@ -1,1 +1,1 @@
-from sbody.alignment.mesh_distance import * 
+from sbody.alignment.mesh_distance import *

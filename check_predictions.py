@@ -82,8 +82,16 @@ def check_mesh_import_export(pred_mesh_filename):
     predicted_mesh.write_obj("./predicted_mesh_export.obj")
 
 
+masked_scan_folder_name = "masked_scan"
+predicted_mesh_aligned_folder_name = "predicted_mesh_aligned"
+
+
 def check_mesh_alignment(
-    pred_mesh_filename, pred_lmk_filename, gt_mesh_filename, gt_lmk_filename
+    pred_mesh_file_path,
+    pred_lmk_file_path,
+    gt_mesh_file_path,
+    gt_lmk_file_path,
+    save_path,
 ):
     """
     Compute rigid alignment between the predicted mesh and the ground truth scan.
@@ -91,32 +99,33 @@ def check_mesh_alignment(
     :param pred_lmk_filename: path of the landmarks of the predicted mesh
     :param gt_mesh_filename: path of the ground truth scan
     :param gt_lmk_filename: path of the ground truth landmark file
+    :param save_path: path for saving generated files
     """
 
-    if not os.path.exists(pred_mesh_filename):
-        print("Predicted mesh not found - %s" % pred_mesh_filename)
+    if not os.path.exists(pred_mesh_file_path):
+        print("Predicted mesh not found - %s" % pred_mesh_file_path)
         return
-    if not os.path.exists(pred_lmk_filename):
-        print("Predicted mesh landmarks not found - %s" % pred_lmk_filename)
+    if not os.path.exists(pred_lmk_file_path):
+        print("Predicted mesh landmarks not found - %s" % pred_lmk_file_path)
         return
-    if not os.path.exists(gt_mesh_filename):
-        print("Ground truth scan not found - %s" % gt_mesh_filename)
+    if not os.path.exists(gt_mesh_file_path):
+        print("Ground truth scan not found - %s" % gt_mesh_file_path)
         return
-    if not os.path.exists(gt_lmk_filename):
-        print("Ground truth scan landmarks not found - %s" % gt_lmk_filename)
+    if not os.path.exists(gt_lmk_file_path):
+        print("Ground truth scan landmarks not found - %s" % gt_lmk_file_path)
         return
 
     # Load ground truth data
-    groundtruth_scan = Mesh(filename=gt_mesh_filename)
-    grundtruth_landmark_points = load_pp(gt_lmk_filename)
+    groundtruth_scan = Mesh(filename=gt_mesh_file_path)
+    grundtruth_landmark_points = load_pp(gt_lmk_file_path)
 
     # Load predicted data
-    predicted_mesh = Mesh(filename=pred_mesh_filename)
-    pred_lmk_ext = os.path.splitext(pred_lmk_filename)[-1]
+    predicted_mesh = Mesh(filename=pred_mesh_file_path)
+    pred_lmk_ext = os.path.splitext(pred_lmk_file_path)[-1]
     if pred_lmk_ext == ".txt":
-        predicted_lmks = load_txt(pred_lmk_filename)
+        predicted_lmks = load_txt(pred_lmk_file_path)
     elif pred_lmk_ext == ".npy":
-        predicted_lmks = np.load(pred_lmk_filename)
+        predicted_lmks = np.load(pred_lmk_file_path)
     else:
         print("Unable to load predicted landmarks, must be of format txt or npy")
         return
@@ -135,15 +144,31 @@ def check_mesh_alignment(
         predicted_lmks,
     )
 
-    os.makedirs("cropped_scan", exist_ok = True)
-    os.makedirs("predicted_mesh_aligned", exist_ok = True)
+    masked_gt_scan_save_folder_path = os.path.join(save_path, masked_scan_folder_name)
+    os.makedirs(masked_gt_scan_save_folder_path, exist_ok=True)
 
-    # Output cropped scan
-    masked_gt_scan.write_obj(os.path.join("cropped_scan", f"{pred_mesh_filename}.obj"))
+    predicted_mesh_aligned_save_folder_path = os.path.join(
+        save_path, predicted_mesh_aligned_folder_name
+    )
+    os.makedirs(predicted_mesh_aligned_save_folder_path, exist_ok=True)
+
+    # Output masked gt scan
+    pred_mesh_file_name = pred_mesh_file_path.split(os.path.sep)[-1]
+    pred_mesh_file_name_no_ext = os.path.splitext(pred_mesh_file_name)[0]
+
+    masked_gt_scan_save_file_path = os.path.join(
+        masked_gt_scan_save_folder_path, f"{pred_mesh_file_name_no_ext}.obj"
+    )
+    print("Saving masked gt scan at", masked_gt_scan_save_file_path)
+    masked_gt_scan.write_obj(masked_gt_scan_save_file_path)
 
     # Output cropped aligned mesh
+    aligned_mesh_save_file_path = os.path.join(
+        predicted_mesh_aligned_save_folder_path, f"{pred_mesh_file_name_no_ext}.obj"
+    )
+    print("Saving predicted mesh vertices aligned at", aligned_mesh_save_file_path)
     Mesh(predicted_mesh_vertices_aligned, predicted_mesh.f).write_obj(
-        os.path.join("predicted_mesh_aligned", f"{pred_mesh_filename}.obj")
+        aligned_mesh_save_file_path
     )
 
 
@@ -154,15 +179,20 @@ def main(argv):
     pred_mesh_filename = argv[1]
     if len(argv) == 2:
         check_mesh_import_export(pred_mesh_filename)
-    elif len(argv) == 5:
+    elif len(argv) == 6:
         pred_lmk_filename = argv[2]
         gt_mesh_filename = argv[3]
         gt_lmk_filename = argv[4]
+        save_path = argv[5]
         check_mesh_alignment(
-            pred_mesh_filename, pred_lmk_filename, gt_mesh_filename, gt_lmk_filename
+            pred_mesh_filename,
+            pred_lmk_filename,
+            gt_mesh_filename,
+            gt_lmk_filename,
+            save_path,
         )
     else:
-        print("Number of parameters wrong - %d != (%d or %d)" % (len(argv), 2, 5))
+        print("Number of parameters wrong - %d != (%d or %d)" % (len(argv), 2, 6))
         return
 
 

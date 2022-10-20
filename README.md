@@ -145,7 +145,30 @@ python compute_error.py
 
 The function in `metric_computation()` in `compute_error.py` is used to compute the error metric. You can run `python compute_error.py <dataset_folder> <predicted_mesh_folder> <validation_or_test_set>`. For more options please see `compute_error.py`
 
-The predicted_mesh_folder should in a similar structure as mentioned in the [RingNet](https://now.is.tue.mpg.de/download.php) website.
+The predicted_mesh_folder should in a similar structure as mentioned in the [RingNet](https://now.is.tue.mpg.de/download.php) website:
+
+The output mesh should be in a .obj or .ply file with a corresponding 3D landmark file (.txt or .npy) for each image. The output folder should maintain the same folder structure as the iphone_pictures folder. The file name should also be the same as the corresponding image names. For example,
+
+```
+- predicted_meshes
+  - FaMoS_*
+     - multiview_neutral
+         - IMG_*.obj
+        - IMG_*.npy
+     - multiview_expressions
+         - IMG_*.obj
+        - IMG_*.npy
+     - multiview_occlusions
+         - IMG_*.obj
+        - IMG_*.npy
+     - selfie
+         - IMG_*.obj
+        - IMG_*.npy
+```
+
+Each 3D landmark file should contain following 7 landmark points on the predicted mesh.
+
+The landmark embedding is used to initialize the rigid alignment process. If you submit a .npy file containing the 7 landmark points, then it should be a 7x3 array where each row is a landmark point. If you submit a .txt file, then also it should be a 7x3 array where each line is a landmark 3D point. The landmark order should correspond to the annotations provided in the dataset.
 
 Prior to computing the point-to-surface distance, a rigid alignment between each predicted mesh and the scan is computed. The rigid alignment computation requires for each predicted mesh a file with following 7 landmarks:
 

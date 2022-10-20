@@ -102,6 +102,7 @@ with a few catches:
 1. Python version in `my_env` needs to be 3.6, or just use conda to specify.
 1. You may need to pip install a few missing dependencies before `check_predictions.py` works.
 1. Due to a few mis-operations, the virtual env `my_venv` is installed under `~/github/mesh/my_venv`. For future usage, run `source ~/github/mesh/my_venv/bin/activate` to activate it.
+1. Correction: `source <shell_script>` is not a valid command to run using Python `subprocess.run()` so we actually need to use the `deca` environment. Follow the steps above but install and make everything while `deca` is activated.
 
 ## Evaluation
 

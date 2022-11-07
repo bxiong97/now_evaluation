@@ -39,7 +39,6 @@ def load_pp(fname):
             lamdmarks[j - 8, :] = np.array([x_content, y_content, z_content]).astype(
                 np.float32
             )
-            # import ipdb; ipdb.set_trace()
     return lamdmarks
 
 
@@ -87,11 +86,11 @@ def metric_computation(
     """
     :param dataset_folder: Path to root of the dataset, which contains images, scans and lanmarks
     :param predicted_mesh_folder: Path to predicted restuls to be evaluated
-    :param gt_mesh_folder: Optional. Path to the GT scans. If not specified, it will be looked for in the dataset folder
-    :param gt_lmk_folder: Optional. Path to the GT landmarks. If not specified, it will be looked for in the dataset folder
+    :param gt_mesh_folder: Optional. Path to the GT scans. If not specified, it will be searched in the dataset folder
+    :param gt_lmk_folder: Optional. Path to the GT landmarks. If not specified, it will be searched in the dataset folder
     :param image_set: 'val' or 'test'. This specifies which images will be used. Ignored if imgs_list is specified
     :param imgs_list: Optional. Path to file with image list to be used
-    :param challenge:
+    :param challenge: Optional. Type of NOW challenge. If None, will evaluate on all challenges.
     :param error_out_path: Optional. Path to results folder. If None, results will be saved to predicted_mesh_folder
     :param method_identifier: Optional. Will be used to name the output file
     """
@@ -106,7 +105,8 @@ def metric_computation(
     ) and not os.path.isdir(dataset_folder):
         raise RuntimeError(f"Dataset folder does not exist. '{dataset_folder}'")
 
-    # Image list, for the NoW validation data, this file can be downloaded from here: https://ringnet.is.tue.mpg.de/downloads
+    # Image list, for the NoW validation data, this file can be downloaded from 
+    # here: https://ringnet.is.tue.mpg.de/downloads
     if imgs_list is None or imgs_list == "":
         if image_set == "val":
             imgs_list = os.path.join(dataset_folder, "imagepathsvalidation.txt")
@@ -126,8 +126,11 @@ def metric_computation(
 
     os.makedirs(error_out_path, exist_ok=True)
 
-    # If empty, error across all challenges (i.e. multiview_neutral, multiview_expressions, multiview_occlusions, or selfie) is computed.
-    # If challenge \in {'multiview_neutral', 'multiview_expressions', 'multiview_occlusions', 'selfie'}, only results of the specified challenge are considered
+    # If empty, error across all challenges 
+    # (i.e. multiview_neutral, multiview_expressions, multiview_occlusions, or selfie) is computed.
+
+    # If challenge in {'multiview_neutral', 'multiview_expressions', 'multiview_occlusions', 'selfie'}, 
+    # only results of the specified challenge are considered.
     valid_challenges = [
         "",
         "multiview_neutral",

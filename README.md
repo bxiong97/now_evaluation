@@ -102,7 +102,7 @@ with a few catches:
 1. Python version in `my_env` needs to be 3.6, or just use conda to specify.
 1. You may need to pip install a few missing dependencies before `check_predictions.py` works.
 1. Due to a few mis-operations, the virtual env `my_venv` is installed under `~/github/mesh/my_venv`. For future usage, run `source ~/github/mesh/my_venv/bin/activate` to activate it.
-1. Correction: `source <shell_script>` is not a valid command to run using Python `subprocess.run()` so we actually need to use the `deca` environment. Follow the steps above but install and make everything while `deca` is activated.
+1. Run `source /home/yanfeng/github/mesh/my_venv/bin/activate` every time before running the evaluation script in a new terminal window.
 
 ## Evaluation
 
@@ -110,20 +110,23 @@ Download the NoW Dataset and the validation set scans from the [NoW website](htt
 
 #### Check data setup
 
-Before running the now evaluation, 
-***1) check that the predicted meshes can be successfuly loaded by the used mesh loader by running***
+Note that this step is not actually computing the errors. It is simply checking whether error computation can be performed. If you are confident that your data and folder setup are already working, simply run `compute_error.py`.
+
+Before running the now evaluation,
+
+**1) Check that the predicted meshes can be successfuly loaded by the used mesh loader by running**
 ```
 python check_predictions.py <predicted_mesh_path>
 ```
 Running this loads the `<predicted_mesh_path>` mesh and exports it to `./predicted_mesh_export.obj`. Please check if this file can be loaded by e.g. [MeshLab](https://www.meshlab.net/) or any other mesh loader, and that the resulting mesh looks like the input mesh.
 
-***2) check that the landmarks for the predicted meshes are correct by running***
+**2) Check that the landmarks for the predicted meshes are correct by running**
 ```
 python check_predictions.py <predicted_mesh_path> <predicted_mesh_landmark_path> <gt_scan_path> <gt_lmk_path> 
 ```
 Running this loads the `<predicted_mesh_path>` mesh, rigidly aligns it with the the scan `<gt_scan_path>`, and outputs the aligned mesh to `./predicted_mesh_aligned.obj`, and the cropped scan to `./cropped_scan.obj`. Please check if the output mesh and scan are rigidly aligned by jointly opening them in e.g. [MeshLab](https://www.meshlab.net/).
 
-Sample command:
+Sample command to check a single prediction:
 
 ```
 python check_predictions.py /home/yanfeng/github/now_evaluation/predicted_mesh_export.obj /home/yanfeng/github/DECA-cache/train/pretrain_multiframe/NOW_eval/step_00149600/FaMoS_180424_03335_TA/multiview_neutral/IMG_0041.npy /home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version/scans/FaMoS_180424_03335_TA/natural_head_rotation.000001.obj /home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version/scans_lmks_onlypp/FaMoS_180424_03335_TA/natural_head_rotation.000001_picked_points.pp
@@ -140,10 +143,24 @@ where:
 
 To run the now evaluation on the validation set, run
 ```
-python compute_error.py
+python compute_error.py <dataset_path> <prediction_path>
 ```
 
 The function in `metric_computation()` in `compute_error.py` is used to compute the error metric. You can run `python compute_error.py <dataset_folder> <predicted_mesh_folder> <validation_or_test_set>`. For more options please see `compute_error.py`
+
+`dataset_folder` is the path to root of the dataset, which contains images, scans and lanmarks.
+
+Example:
+
+```
+python compute_error.py "/home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version" "/home/yanfeng/github/DECA-cache/train/pretrain_multiframe/NOW_eval"
+```
+
+Finally, run:
+
+```
+python cumulative_errors.py
+```
 
 The predicted_mesh_folder should in a similar structure as mentioned in the [RingNet](https://now.is.tue.mpg.de/download.php) website:
 

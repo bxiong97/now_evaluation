@@ -76,11 +76,14 @@ def generating_cumulative_error_plots(
 
 if __name__ == "__main__":
     # List of method identifiers, used as method name within the polot
-    method_identifiers = []
+    method_identifiers = ["deca-single-frame", "deca-multi-frame"]
     # List of paths to the error files (must be of same order than the method identifiers)
-    method_error_fnames = []
+    method_error_fnames = [
+        "/home/yanfeng/github/DECA-cache/train/pretrain_single_frame/NOW_eval/results/_computed_distances.npy",
+        "/home/yanfeng/github/DECA-cache/train/pretrain_multiframe/NOW_eval/results/_computed_distances.npy",
+    ]
     # File name of the output error plot
-    out_fname = ""
+    out_fname = "errors.png"
 
     generating_cumulative_error_plots(
         method_error_fnames, method_identifiers, out_fname

@@ -128,4 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Folders
+# Installed / copied repos
+sbody/
+smpl_webuser/

@@ -60,7 +60,7 @@ git clone https://gitlab.com/libeigen/eigen.git
 cp eigen now_evaluation/sbody/alignment/mesh_distance/eigen -r
 ```
 
-Edit the file 'now_evaluation/sbody/alignment/mesh_distance/setup.py' to set EIGEN_DIR to the location of Eigen. Then compile the code by following command
+Edit the file `now_evaluation/sbody/alignment/mesh_distance/setup.py` to set EIGEN_DIR to the location of Eigen. Then compile the code by following command
 ```
 cd now_evaluation/sbody/alignment/mesh_distance
 make
@@ -114,7 +114,7 @@ Note that this step is not actually computing the errors. It is simply checking 
 
 Before running the now evaluation,
 
-**1) Check that the predicted meshes can be successfuly loaded by the used mesh loader by running**
+**1) Check that the predicted meshes can be successfuly loaded by the mesh loader:**
 ```
 python check_predictions.py <predicted_mesh_path>
 ```
@@ -122,39 +122,44 @@ Running this loads the `<predicted_mesh_path>` mesh and exports it to `./predict
 
 **2) Check that the landmarks for the predicted meshes are correct by running**
 ```
-python check_predictions.py <predicted_mesh_path> <predicted_mesh_landmark_path> <gt_scan_path> <gt_lmk_path> 
+python check_predictions.py <predicted_mesh_path> <predicted_mesh_landmark_path> <gt_scan_path> <gt_lmk_path> <save_path>
 ```
 Running this loads the `<predicted_mesh_path>` mesh, rigidly aligns it with the the scan `<gt_scan_path>`, and outputs the aligned mesh to `./predicted_mesh_aligned.obj`, and the cropped scan to `./cropped_scan.obj`. Please check if the output mesh and scan are rigidly aligned by jointly opening them in e.g. [MeshLab](https://www.meshlab.net/).
 
 Sample command to check a single prediction:
 
 ```
-python check_predictions.py /home/yanfeng/github/now_evaluation/predicted_mesh_export.obj /home/yanfeng/github/DECA-cache/train/pretrain_multiframe/NOW_eval/step_00149600/FaMoS_180424_03335_TA/multiview_neutral/IMG_0041.npy /home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version/scans/FaMoS_180424_03335_TA/natural_head_rotation.000001.obj /home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version/scans_lmks_onlypp/FaMoS_180424_03335_TA/natural_head_rotation.000001_picked_points.pp
+python check_predictions.py /home/yanfeng/github/now_evaluation/predicted_mesh_export.obj /home/yanfeng/github/DECA-cache/train/pretrain_multiframe/NOW_eval/step_00149600/FaMoS_180424_03335_TA/multiview_neutral/IMG_0041.npy /home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version/scans/FaMoS_180424_03335_TA/natural_head_rotation.000001.obj /home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version/scans_lmks_onlypp/FaMoS_180424_03335_TA/natural_head_rotation.000001_picked_points.pp /home/yanfeng/github/now_evaluation/generated
+```
+or
+```
+python check_predictions.py /home/yanfeng/github/DECA-cache/run/video_dataset_results/subject_1/scans/Subject1_0_0247.obj /home/yanfeng/github/DECA-cache/run/video_dataset_results/subject_1/keypoints/Subject1_0_0247.npy /home/yanfeng/github/DECA-cache/datasets/mon_face_cap/subject_1/scans/reconstruction_0247.ply /home/yanfeng/github/DECA-cache/datasets/mon_face_cap/subject_1/landmarks/reconstruction_0247.txt /home/yanfeng/github/now_evaluation/generated
 ```
 
 where:
 
 * Predicted mesh path is `.obj`
 * Predicted mesh landmark path is `.npy` or `.txt`
-* GT scan path is `.obj`
-* GT landmark path is `.pp`
+* GT scan path is `.ply`
+* GT landmark path is `.pp`, or `.npy`, or `.txt`
+* `save_path` is a folder to save the generated files to
 
 #### Error computation
 
-To run the now evaluation on the validation set, run
-```
-python compute_error.py <dataset_path> <prediction_path>
-```
-
-The function in `metric_computation()` in `compute_error.py` is used to compute the error metric. You can run `python compute_error.py <dataset_folder> <predicted_mesh_folder> <validation_or_test_set>`. For more options please see `compute_error.py`
-
-`dataset_folder` is the path to root of the dataset, which contains images, scans and lanmarks.
-
-Example:
+First, activate the virtual env for NOW evaluation. It is different from the `deca` environment for training.
 
 ```
-python compute_error.py "/home/yanfeng/github/DECA-cache/datasets/now/NoW_Dataset/final_release_version" "/home/yanfeng/github/DECA-cache/train/pretrain_multiframe/NOW_eval"
+cd ../mesh
+source my_venv/bin/activate
+cd ../now_evaluation
 ```
+
+To run the now evaluation on the validation set, you should search "TODO" in code and modify the arguments in `compute_error.py`, then run
+```
+python compute_error.py
+```
+
+The function in `metric_computation()` in `compute_error.py` is used to compute the error metric. Check the code to see what inputs it needs. `dataset_folder` is the path to root of the dataset, which contains images, scans and lanmarks.
 
 Finally, run:
 
@@ -162,30 +167,29 @@ Finally, run:
 python cumulative_errors.py
 ```
 
-The predicted_mesh_folder should in a similar structure as mentioned in the [RingNet](https://now.is.tue.mpg.de/download.php) website:
+The output mesh should be in a .obj or .ply file with a corresponding 3D landmark file (.txt or .npy) for each image.
 
-The output mesh should be in a .obj or .ply file with a corresponding 3D landmark file (.txt or .npy) for each image. The output folder should maintain the same folder structure as the iphone_pictures folder. The file name should also be the same as the corresponding image names. For example,
-
+Both the gt folder and prediction folder should have the following file structure:
 ```
-- predicted_meshes
-  - FaMoS_*
-     - multiview_neutral
-         - IMG_*.obj
-        - IMG_*.npy
-     - multiview_expressions
-         - IMG_*.obj
-        - IMG_*.npy
-     - multiview_occlusions
-         - IMG_*.obj
-        - IMG_*.npy
-     - selfie
-         - IMG_*.obj
-        - IMG_*.npy
+- root
+  - subject_1
+    - images (gt only)
+      - img_1.png
+      - img_2.png
+      ...
+    - scans
+      - img_1.obj/.ply
+      - img_2.obj/.ply
+      ...
+    - landmarks
+      - img_1.pp/.npy/.txt
+      - img_2.pp/.npy/.txt
+      ...
+  - subject_2
+  ...
 ```
 
-Each 3D landmark file should contain following 7 landmark points on the predicted mesh.
-
-The landmark embedding is used to initialize the rigid alignment process. If you submit a .npy file containing the 7 landmark points, then it should be a 7x3 array where each row is a landmark point. If you submit a .txt file, then also it should be a 7x3 array where each line is a landmark 3D point. The landmark order should correspond to the annotations provided in the dataset.
+The landmark embedding is used to initialize the rigid alignment process. If you submit a .npy file containing the 7 landmark points, then it should be a 7x3 array where each row is a landmark point. If you submit a .txt file, the coordinates should be 3 numbers separated by comma, and there should be no new line at the end of the file because each line is treated as a point. The order of the points are as shown in the graph below.
 
 Prior to computing the point-to-surface distance, a rigid alignment between each predicted mesh and the scan is computed. The rigid alignment computation requires for each predicted mesh a file with following 7 landmarks:
 
@@ -221,7 +225,3 @@ year = {2019},
 month_numeric = {6}
 }
 ```
-
-
-
-

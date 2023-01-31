@@ -131,3 +131,7 @@ dmypy.json
 # Installed / copied repos
 sbody/
 smpl_webuser/
+
+# evaluation files
+*.npy
+*.obj

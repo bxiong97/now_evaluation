@@ -14,59 +14,7 @@ import numpy as np
 from scan2mesh_computations import crop_face_scan as crop_face_scan
 from scan2mesh_computations import compute_rigid_alignment as compute_rigid_alignment
 from psbody.mesh import Mesh
-
-
-def load_pp(fname):
-    lamdmarks = np.zeros([7, 3]).astype(np.float32)
-    # import ipdb; ipdb.set_trace()
-    with open(fname, "r") as f:
-        lines = f.readlines()
-        for j in range(8, 15):  # for j in xrange(9,15):
-            # import ipdb; ipdb.set_trace()
-            line_contentes = lines[j].split(" ")
-            # Check the .pp file to get to accurately pickup the columns for x , y and z coordinates
-            for i in range(len(line_contentes)):
-                if line_contentes[i].split("=")[0] == "x":
-                    x_content = float((line_contentes[i].split("=")[1]).split('"')[1])
-                elif line_contentes[i].split("=")[0] == "y":
-                    y_content = float((line_contentes[i].split("=")[1]).split('"')[1])
-                elif line_contentes[i].split("=")[0] == "z":
-                    z_content = float((line_contentes[i].split("=")[1]).split('"')[1])
-                else:
-                    pass
-            lamdmarks[j - 8, :] = np.array([x_content, y_content, z_content]).astype(
-                np.float32
-            )
-            # import ipdb; ipdb.set_trace()
-    return lamdmarks
-
-
-def load_txt(fname):
-    landmarks = []  # np.zeros([7,3]).astype(np.float32)
-    with open(fname, "r") as f:
-        lines = f.read().splitlines()
-    # import ipdb; ipdb.set_trace()
-    line = []
-    for i in range(len(lines)):  # For Jiaxiang_Shang
-        line.append(lines[i].split(" "))
-    # import ipdb; ipdb.set_trace()
-    landmarks = np.array(line, dtype=np.float32)
-    lmks = landmarks
-    return lmks
-
-
-def save_obj(path, v, f, c):
-    with open(path, "w") as file:
-        for i in range(len(v)):
-            file.write(
-                "v %f %f %f %f %f %f\n"
-                % (v[i, 0], v[i, 1], v[i, 2], c[i, 0], c[i, 1], c[i, 2])
-            )
-        file.write("\n")
-
-        for i in range(len(f)):
-            file.write("f %d %d %d\n" % (f[i, 0], f[i, 1], f[i, 2]))
-    file.close()
+from utils import load_landmarks
 
 
 def check_mesh_import_export(pred_mesh_filename):
@@ -117,13 +65,13 @@ def check_mesh_alignment(
 
     # Load ground truth data
     groundtruth_scan = Mesh(filename=gt_mesh_file_path)
-    grundtruth_landmark_points = load_pp(gt_lmk_file_path)
+    grundtruth_landmark_points = load_landmarks(gt_lmk_file_path)
 
     # Load predicted data
     predicted_mesh = Mesh(filename=pred_mesh_file_path)
     pred_lmk_ext = os.path.splitext(pred_lmk_file_path)[-1]
     if pred_lmk_ext == ".txt":
-        predicted_lmks = load_txt(pred_lmk_file_path)
+        predicted_lmks = load_landmarks(pred_lmk_file_path)
     elif pred_lmk_ext == ".npy":
         predicted_lmks = np.load(pred_lmk_file_path)
     else:
